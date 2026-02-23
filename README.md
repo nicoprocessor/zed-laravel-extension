@@ -2,6 +2,8 @@
 
 Full Laravel support for [Zed](https://zed.dev): intelligent completions, navigation, diagnostics, and Blade templates.
 
+This project is a port of the official [Laravel VS Code extension](https://github.com/laravel/vs-code-extension) built by the Laravel team. Their work on the language server, PHP bootstrapping, and feature design is the foundation this extension builds on. Full credit to the Laravel team for the original implementation.
+
 ## Features
 
 - **Route intelligence** — completions, hover info, go-to-definition, and diagnostics for named routes
