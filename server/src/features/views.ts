@@ -161,8 +161,13 @@ export function provideViewCompletion(
     .map((view, index) => ({
       label: view.key,
       kind: CompletionItemKind.File,
-      detail: view.path,
+      detail: view.isVendor ? "[vendor]" : "",
+      documentation: {
+        kind: "markdown" as const,
+        value: `**Path:** \`${view.path}\``,
+      },
       sortText: `${view.isVendor ? "z" : "a"}_${String(index).padStart(5, "0")}`,
+      filterText: view.key,
     }));
 }
 
@@ -227,7 +232,7 @@ export function provideViewDiagnostics(
       Diagnostic.create(
         ref.range,
         `View "${value}" not found.`,
-        DiagnosticSeverity.Warning,
+        DiagnosticSeverity.Error,
         "laravel-view",
         "laravel-lsp"
       )

@@ -4,7 +4,7 @@ error_reporting(E_ERROR | E_PARSE);
 
 define('LARAVEL_START', microtime(true));
 
-require_once __DIR__ . '/../../autoload.php';
+require_once __DIR__ . '/../autoload.php';
 
 class LaravelVsCode
 {

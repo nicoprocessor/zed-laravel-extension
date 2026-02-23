@@ -132,10 +132,20 @@ export function provideRouteCompletion(
 
   return namedRoutes.map((route, index) => ({
     label: route.name!,
-    kind: CompletionItemKind.Value,
-    detail: `${route.method} ${route.uri}`,
-    documentation: `Action: ${route.action}`,
+    kind: CompletionItemKind.Constant,
+    detail: `[${route.method}]`,
+    documentation: {
+      kind: "markdown" as const,
+      value: [
+        `**URI:** \`/${route.uri}\``,
+        `**Action:** \`${route.action}\``,
+        route.filename ? `**File:** \`${route.filename}\`` : "",
+      ]
+        .filter(Boolean)
+        .join("\n\n"),
+    },
     sortText: String(index).padStart(5, "0"),
+    filterText: route.name!,
   }));
 }
 
@@ -158,7 +168,13 @@ export function provideRouteHover(
   ];
 
   if (route.filename) {
-    parts.push(`**File:** \`${route.filename}\``);
+    parts.push(`**Defined in:** \`${route.filename}:${route.line ?? ""}\``);
+  }
+
+  if (route.actionFilename && route.actionFilename !== route.filename) {
+    parts.push(
+      `**Controller:** \`${route.actionFilename}:${route.actionLine ?? ""}\``
+    );
   }
 
   return {
@@ -219,7 +235,7 @@ export function provideRouteDiagnostics(
       Diagnostic.create(
         ref.range,
         `Route "${value}" not found.`,
-        DiagnosticSeverity.Warning,
+        DiagnosticSeverity.Error,
         "laravel-route",
         "laravel-lsp"
       )

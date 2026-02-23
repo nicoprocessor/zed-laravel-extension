@@ -25,8 +25,9 @@ export const createRepository = <T>(
         if (result !== undefined) {
           repo.items = result;
           repo.loaded = true;
+          const count = Array.isArray(result) ? result.length : 'N/A';
           config.connection.console.log(
-            `Repository "${config.name}" loaded.`
+            `Repository "${config.name}" loaded (${count} items).`
           );
         }
       } catch (e) {

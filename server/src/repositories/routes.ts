@@ -11,6 +11,8 @@ export interface RouteItem {
   parameters: string[];
   filename: string | null;
   line: number | null;
+  actionFilename: string | null;
+  actionLine: number | null;
 }
 
 let routesRepo: Repository<RouteItem[]> | null = null;
