@@ -1,0 +1,20 @@
+# Rust
+extension/target/
+
+# Node.js
+server/node_modules/
+server/dist/
+
+# OS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# Build artifacts
+*.wasm
+node_modules/
+
+# Local docs (not committed)
+docs/plans/
