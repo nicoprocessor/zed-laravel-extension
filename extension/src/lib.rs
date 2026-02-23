@@ -1,33 +1,54 @@
+use std::fs;
 use zed_extension_api::{self as zed, settings::LspSettings, LanguageServerId, Result};
+
+const SERVER_PATH: &str = "node_modules/laravel-lsp-server/dist/server.js";
 
 struct LaravelExtension {
     did_find_server: bool,
 }
 
 impl LaravelExtension {
-    /// Check the dev path first (`server/dist/server.js`), then fall back to
-    /// the production path (`node_modules/laravel-lsp-server/dist/server.js`).
-    fn server_script_path(&mut self, worktree: &zed::Worktree) -> Result<String> {
-        let dev_path = "server/dist/server.js";
-        let prod_path = "node_modules/laravel-lsp-server/dist/server.js";
+    fn server_exists(&self) -> bool {
+        fs::metadata(SERVER_PATH).map_or(false, |s| s.is_file())
+    }
 
-        // Try the dev (in-repo) server first.
-        if worktree.read_text_file(dev_path).is_ok() {
-            self.did_find_server = true;
-            return Ok(dev_path.to_string());
+    fn server_script_path(
+        &mut self,
+        language_server_id: &LanguageServerId,
+    ) -> Result<String> {
+        if self.did_find_server && self.server_exists() {
+            return Ok(SERVER_PATH.to_string());
         }
 
-        // Fall back to the installed npm package.
-        if worktree.read_text_file(prod_path).is_ok() {
-            self.did_find_server = true;
-            return Ok(prod_path.to_string());
+        zed::set_language_server_installation_status(
+            language_server_id,
+            &zed::LanguageServerInstallationStatus::CheckingForUpdate,
+        );
+
+        // Try npm install (works when published, fails gracefully in dev)
+        if let Ok(version) = zed::npm_package_latest_version("laravel-lsp-server") {
+            let needs_install = !self.server_exists()
+                || zed::npm_package_installed_version("laravel-lsp-server")?
+                    .as_ref()
+                    != Some(&version);
+
+            if needs_install {
+                zed::set_language_server_installation_status(
+                    language_server_id,
+                    &zed::LanguageServerInstallationStatus::Downloading,
+                );
+                let _ = zed::npm_install_package("laravel-lsp-server", &version);
+            }
         }
 
-        self.did_find_server = false;
-        Err(format!(
-            "Could not find the Laravel LSP server at either `{dev_path}` or `{prod_path}`. \
-             Make sure the server has been built or installed."
-        ))
+        if self.server_exists() {
+            self.did_find_server = true;
+            return Ok(SERVER_PATH.to_string());
+        }
+
+        Err(
+            "Laravel LSP server not found. See README for installation instructions.".into(),
+        )
     }
 }
 
@@ -40,15 +61,21 @@ impl zed::Extension for LaravelExtension {
 
     fn language_server_command(
         &mut self,
-        _language_server_id: &LanguageServerId,
-        worktree: &zed::Worktree,
+        language_server_id: &LanguageServerId,
+        _worktree: &zed::Worktree,
     ) -> Result<zed::Command> {
-        let server_path = self.server_script_path(worktree)?;
-        let node_path = zed::node_binary_path()?;
+        let server_path = self.server_script_path(language_server_id)?;
+        let node = zed::node_binary_path()?;
+
+        let server_abs = std::env::current_dir()
+            .unwrap()
+            .join(&server_path)
+            .to_string_lossy()
+            .to_string();
 
         Ok(zed::Command {
-            command: node_path,
-            args: vec![server_path, "--stdio".to_string()],
+            command: node,
+            args: vec![server_abs, "--stdio".to_string()],
             env: Default::default(),
         })
     }
@@ -58,10 +85,9 @@ impl zed::Extension for LaravelExtension {
         _language_server_id: &LanguageServerId,
         worktree: &zed::Worktree,
     ) -> Result<Option<zed::serde_json::Value>> {
-        let settings = LspSettings::for_worktree("laravel-lsp", worktree)
+        Ok(LspSettings::for_worktree("laravel-lsp", worktree)
             .ok()
-            .and_then(|s| s.initialization_options);
-        Ok(settings)
+            .and_then(|s| s.initialization_options))
     }
 
     fn language_server_workspace_configuration(
@@ -69,10 +95,9 @@ impl zed::Extension for LaravelExtension {
         _language_server_id: &LanguageServerId,
         worktree: &zed::Worktree,
     ) -> Result<Option<zed::serde_json::Value>> {
-        let settings = LspSettings::for_worktree("laravel-lsp", worktree)
+        Ok(LspSettings::for_worktree("laravel-lsp", worktree)
             .ok()
-            .and_then(|s| s.settings);
-        Ok(settings)
+            .and_then(|s| s.settings))
     }
 }
 
