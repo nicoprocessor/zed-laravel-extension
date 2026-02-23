@@ -2,7 +2,7 @@ id = "laravel"
 name = "Laravel"
 version = "0.0.1"
 schema_version = 1
-authors = ["Harris Rafto"]
+authors = ["Harris Raftopoulos"]
 description = "Full Laravel support for Zed: Blade templates, route/view/config intelligence, Pint formatting, snippets, and more."
 repository = "https://github.com/harrisrafto/zed-laravel-extension"
 
