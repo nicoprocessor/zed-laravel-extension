@@ -1,0 +1,18 @@
+name = "Blade"
+grammar = "blade"
+path_suffixes = ["blade.php"]
+block_comment = ["{{-- ", " --}}"]
+autoclose_before = ";:.,=}])>"
+word_characters = ["_"]
+tab_size = 4
+
+[brackets]
+"(" = ")"
+"[" = "]"
+"{" = "}"
+"<" = ">"
+"\"" = "\""
+"'" = "'"
+
+[language_servers]
+servers = ["laravel-lsp"]
