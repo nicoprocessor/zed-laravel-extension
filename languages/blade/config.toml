@@ -5,14 +5,11 @@ block_comment = ["{{-- ", " --}}"]
 autoclose_before = ";:.,=}])>"
 word_characters = ["_"]
 tab_size = 4
-
-[brackets]
-"(" = ")"
-"[" = "]"
-"{" = "}"
-"<" = ">"
-"\"" = "\""
-"'" = "'"
-
-[language_servers]
-servers = ["laravel-lsp"]
+brackets = [
+  { start = "{", end = "}", close = true, newline = true },
+  { start = "[", end = "]", close = true, newline = true },
+  { start = "(", end = ")", close = true, newline = true },
+  { start = "<", end = ">", close = false, newline = true },
+  { start = "\"", end = "\"", close = true, newline = false },
+  { start = "'", end = "'", close = true, newline = false },
+]
