@@ -1,0 +1,498 @@
+{
+  "b:if": {
+    "prefix": "b:if",
+    "body": [
+      "@if (${1:condition})",
+      "\t$0",
+      "@endif"
+    ],
+    "description": "Blade @if block"
+  },
+  "b:ifelse": {
+    "prefix": "b:ifelse",
+    "body": [
+      "@if (${1:condition})",
+      "\t$2",
+      "@else",
+      "\t$0",
+      "@endif"
+    ],
+    "description": "Blade @if / @else block"
+  },
+  "b:ifelseif": {
+    "prefix": "b:ifelseif",
+    "body": [
+      "@if (${1:condition})",
+      "\t$2",
+      "@elseif (${3:condition})",
+      "\t$4",
+      "@else",
+      "\t$0",
+      "@endif"
+    ],
+    "description": "Blade @if / @elseif / @else block"
+  },
+  "b:unless": {
+    "prefix": "b:unless",
+    "body": [
+      "@unless (${1:condition})",
+      "\t$0",
+      "@endunless"
+    ],
+    "description": "Blade @unless block"
+  },
+  "b:isset": {
+    "prefix": "b:isset",
+    "body": [
+      "@isset (${1:\\$variable})",
+      "\t$0",
+      "@endisset"
+    ],
+    "description": "Blade @isset block"
+  },
+  "b:empty": {
+    "prefix": "b:empty",
+    "body": [
+      "@empty (${1:\\$variable})",
+      "\t$0",
+      "@endempty"
+    ],
+    "description": "Blade @empty block"
+  },
+  "b:foreach": {
+    "prefix": "b:foreach",
+    "body": [
+      "@foreach (${1:\\$items} as ${2:\\$item})",
+      "\t$0",
+      "@endforeach"
+    ],
+    "description": "Blade @foreach loop"
+  },
+  "b:forelse": {
+    "prefix": "b:forelse",
+    "body": [
+      "@forelse (${1:\\$items} as ${2:\\$item})",
+      "\t$3",
+      "@empty",
+      "\t$0",
+      "@endforelse"
+    ],
+    "description": "Blade @forelse loop with @empty fallback"
+  },
+  "b:for": {
+    "prefix": "b:for",
+    "body": [
+      "@for (${1:\\$i = 0}; ${2:\\$i < count}; ${3:\\$i++})",
+      "\t$0",
+      "@endfor"
+    ],
+    "description": "Blade @for loop"
+  },
+  "b:while": {
+    "prefix": "b:while",
+    "body": [
+      "@while (${1:condition})",
+      "\t$0",
+      "@endwhile"
+    ],
+    "description": "Blade @while loop"
+  },
+  "b:switch": {
+    "prefix": "b:switch",
+    "body": [
+      "@switch(${1:\\$variable})",
+      "\t@case(${2:value})",
+      "\t\t$3",
+      "\t\t@break",
+      "",
+      "\t@default",
+      "\t\t$0",
+      "@endswitch"
+    ],
+    "description": "Blade @switch block"
+  },
+  "b:extends": {
+    "prefix": "b:extends",
+    "body": [
+      "@extends('${1:layouts.app}')"
+    ],
+    "description": "Blade @extends directive"
+  },
+  "b:section": {
+    "prefix": "b:section",
+    "body": [
+      "@section('${1:content}')",
+      "\t$0",
+      "@endsection"
+    ],
+    "description": "Blade @section block"
+  },
+  "b:section:inline": {
+    "prefix": "b:section:inline",
+    "body": [
+      "@section('${1:title}', '${2:value}')"
+    ],
+    "description": "Blade inline @section directive"
+  },
+  "b:yield": {
+    "prefix": "b:yield",
+    "body": [
+      "@yield('${1:content}')"
+    ],
+    "description": "Blade @yield directive"
+  },
+  "b:include": {
+    "prefix": "b:include",
+    "body": [
+      "@include('${1:view.name}')"
+    ],
+    "description": "Blade @include directive"
+  },
+  "b:includeIf": {
+    "prefix": "b:includeIf",
+    "body": [
+      "@includeIf('${1:view.name}')"
+    ],
+    "description": "Blade @includeIf directive"
+  },
+  "b:includeWhen": {
+    "prefix": "b:includeWhen",
+    "body": [
+      "@includeWhen(${1:condition}, '${2:view.name}')"
+    ],
+    "description": "Blade @includeWhen directive"
+  },
+  "b:includeUnless": {
+    "prefix": "b:includeUnless",
+    "body": [
+      "@includeUnless(${1:condition}, '${2:view.name}')"
+    ],
+    "description": "Blade @includeUnless directive"
+  },
+  "b:includeFirst": {
+    "prefix": "b:includeFirst",
+    "body": [
+      "@includeFirst(['${1:view.name}', '${2:fallback.view}'])"
+    ],
+    "description": "Blade @includeFirst directive"
+  },
+  "b:each": {
+    "prefix": "b:each",
+    "body": [
+      "@each('${1:view.name}', ${2:\\$items}, '${3:item}')"
+    ],
+    "description": "Blade @each directive"
+  },
+  "b:component": {
+    "prefix": "b:component",
+    "body": [
+      "<x-${1:component} ${2:}/>$0"
+    ],
+    "description": "Blade <x-component /> self-closing tag"
+  },
+  "b:component:block": {
+    "prefix": "b:component:block",
+    "body": [
+      "<x-${1:component} ${2:}>",
+      "\t$0",
+      "</x-${1:component}>"
+    ],
+    "description": "Blade <x-component> block tag"
+  },
+  "b:slot": {
+    "prefix": "b:slot",
+    "body": [
+      "<x-slot:${1:name}>",
+      "\t$0",
+      "</x-slot>"
+    ],
+    "description": "Blade <x-slot:name> block"
+  },
+  "b:props": {
+    "prefix": "b:props",
+    "body": [
+      "@props([",
+      "\t'${1:name}' => ${2:'default'},",
+      "])"
+    ],
+    "description": "Blade @props directive"
+  },
+  "b:auth": {
+    "prefix": "b:auth",
+    "body": [
+      "@auth${1:('${2:guard}')}",
+      "\t$0",
+      "@endauth"
+    ],
+    "description": "Blade @auth block"
+  },
+  "b:guest": {
+    "prefix": "b:guest",
+    "body": [
+      "@guest${1:('${2:guard}')}",
+      "\t$0",
+      "@endguest"
+    ],
+    "description": "Blade @guest block"
+  },
+  "b:can": {
+    "prefix": "b:can",
+    "body": [
+      "@can('${1:ability}', ${2:\\$model})",
+      "\t$0",
+      "@endcan"
+    ],
+    "description": "Blade @can authorization block"
+  },
+  "b:cannot": {
+    "prefix": "b:cannot",
+    "body": [
+      "@cannot('${1:ability}', ${2:\\$model})",
+      "\t$0",
+      "@endcannot"
+    ],
+    "description": "Blade @cannot authorization block"
+  },
+  "b:env": {
+    "prefix": "b:env",
+    "body": [
+      "@env('${1|local,staging,production|}')",
+      "\t$0",
+      "@endenv"
+    ],
+    "description": "Blade @env block"
+  },
+  "b:production": {
+    "prefix": "b:production",
+    "body": [
+      "@production",
+      "\t$0",
+      "@endproduction"
+    ],
+    "description": "Blade @production block"
+  },
+  "b:push": {
+    "prefix": "b:push",
+    "body": [
+      "@push('${1:scripts}')",
+      "\t$0",
+      "@endpush"
+    ],
+    "description": "Blade @push block"
+  },
+  "b:pushOnce": {
+    "prefix": "b:pushOnce",
+    "body": [
+      "@pushOnce('${1:scripts}')",
+      "\t$0",
+      "@endPushOnce"
+    ],
+    "description": "Blade @pushOnce block"
+  },
+  "b:stack": {
+    "prefix": "b:stack",
+    "body": [
+      "@stack('${1:scripts}')"
+    ],
+    "description": "Blade @stack directive"
+  },
+  "b:once": {
+    "prefix": "b:once",
+    "body": [
+      "@once",
+      "\t$0",
+      "@endonce"
+    ],
+    "description": "Blade @once block"
+  },
+  "b:csrf": {
+    "prefix": "b:csrf",
+    "body": [
+      "@csrf"
+    ],
+    "description": "Blade @csrf directive"
+  },
+  "b:method": {
+    "prefix": "b:method",
+    "body": [
+      "@method('${1|PUT,PATCH,DELETE|}')"
+    ],
+    "description": "Blade @method directive for form spoofing"
+  },
+  "b:error": {
+    "prefix": "b:error",
+    "body": [
+      "@error('${1:field}')",
+      "\t<p class=\"text-red-500\">{{ \\$message }}</p>",
+      "@enderror"
+    ],
+    "description": "Blade @error block"
+  },
+  "b:session": {
+    "prefix": "b:session",
+    "body": [
+      "@session('${1:key}')",
+      "\t$0",
+      "@endsession"
+    ],
+    "description": "Blade @session block"
+  },
+  "b:php": {
+    "prefix": "b:php",
+    "body": [
+      "@php",
+      "\t$0",
+      "@endphp"
+    ],
+    "description": "Blade @php block"
+  },
+  "b:verbatim": {
+    "prefix": "b:verbatim",
+    "body": [
+      "@verbatim",
+      "\t$0",
+      "@endverbatim"
+    ],
+    "description": "Blade @verbatim block (skip compilation)"
+  },
+  "b:json": {
+    "prefix": "b:json",
+    "body": [
+      "@json(${1:\\$variable})"
+    ],
+    "description": "Blade @json directive"
+  },
+  "b:dd": {
+    "prefix": "b:dd",
+    "body": [
+      "@dd(${1:\\$variable})"
+    ],
+    "description": "Blade @dd directive"
+  },
+  "b:dump": {
+    "prefix": "b:dump",
+    "body": [
+      "@dump(${1:\\$variable})"
+    ],
+    "description": "Blade @dump directive"
+  },
+  "b:echo": {
+    "prefix": "b:echo",
+    "body": [
+      "{{ ${1:\\$variable} }}"
+    ],
+    "description": "Blade escaped echo {{ }}"
+  },
+  "b:echo:raw": {
+    "prefix": "b:echo:raw",
+    "body": [
+      "{!! ${1:\\$variable} !!}"
+    ],
+    "description": "Blade unescaped echo {!! !!}"
+  },
+  "b:comment": {
+    "prefix": "b:comment",
+    "body": [
+      "{{-- ${1:comment} --}}"
+    ],
+    "description": "Blade comment {{-- --}}"
+  },
+  "b:old": {
+    "prefix": "b:old",
+    "body": [
+      "{{ old('${1:field}'${2:, ${3:\\$default}}) }}"
+    ],
+    "description": "Blade old() form helper"
+  },
+  "b:asset": {
+    "prefix": "b:asset",
+    "body": [
+      "{{ asset('${1:path}') }}"
+    ],
+    "description": "Blade asset() helper"
+  },
+  "b:route": {
+    "prefix": "b:route",
+    "body": [
+      "{{ route('${1:name}'${2:, ${3:[\\$param]}}) }}"
+    ],
+    "description": "Blade route() helper"
+  },
+  "b:url": {
+    "prefix": "b:url",
+    "body": [
+      "{{ url('${1:path}') }}"
+    ],
+    "description": "Blade url() helper"
+  },
+  "b:vite": {
+    "prefix": "b:vite",
+    "body": [
+      "@vite(['${1:resources/css/app.css}', '${2:resources/js/app.js}'])"
+    ],
+    "description": "Blade @vite directive"
+  },
+  "b:class": {
+    "prefix": "b:class",
+    "body": [
+      "@class([",
+      "\t'${1:base-class}',",
+      "\t'${2:conditional-class}' => ${3:condition},",
+      "])"
+    ],
+    "description": "Blade @class conditional classes"
+  },
+  "b:checked": {
+    "prefix": "b:checked",
+    "body": [
+      "@checked(${1:condition})"
+    ],
+    "description": "Blade @checked directive"
+  },
+  "b:selected": {
+    "prefix": "b:selected",
+    "body": [
+      "@selected(${1:condition})"
+    ],
+    "description": "Blade @selected directive"
+  },
+  "b:disabled": {
+    "prefix": "b:disabled",
+    "body": [
+      "@disabled(${1:condition})"
+    ],
+    "description": "Blade @disabled directive"
+  },
+  "b:readonly": {
+    "prefix": "b:readonly",
+    "body": [
+      "@readonly(${1:condition})"
+    ],
+    "description": "Blade @readonly directive"
+  },
+  "b:required": {
+    "prefix": "b:required",
+    "body": [
+      "@required(${1:condition})"
+    ],
+    "description": "Blade @required directive"
+  },
+  "b:prepend": {
+    "prefix": "b:prepend",
+    "body": [
+      "@prepend('${1:scripts}')",
+      "\t$0",
+      "@endprepend"
+    ],
+    "description": "Blade @prepend block"
+  },
+  "b:fragment": {
+    "prefix": "b:fragment",
+    "body": [
+      "@fragment('${1:name}')",
+      "\t$0",
+      "@endfragment"
+    ],
+    "description": "Blade @fragment block"
+  }
+}

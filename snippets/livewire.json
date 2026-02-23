@@ -1,0 +1,354 @@
+{
+  "lw:component": {
+    "prefix": "lw:component",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Livewire;",
+      "",
+      "use Livewire\\Component;",
+      "",
+      "class ${1:Name} extends Component",
+      "{",
+      "\t$2",
+      "",
+      "\tpublic function render()",
+      "\t{",
+      "\t\treturn view('livewire.${3:name}');",
+      "\t}",
+      "}"
+    ],
+    "description": "Livewire 3 component class"
+  },
+  "lw:component:full": {
+    "prefix": "lw:component:full",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Livewire;",
+      "",
+      "use Livewire\\Attributes\\Layout;",
+      "use Livewire\\Component;",
+      "",
+      "#[Layout('${1:layouts.app}')]",
+      "class ${2:Name} extends Component",
+      "{",
+      "\t$3",
+      "",
+      "\tpublic function mount(${4:}): void",
+      "\t{",
+      "\t\t$5",
+      "\t}",
+      "",
+      "\tpublic function render()",
+      "\t{",
+      "\t\treturn view('livewire.${6:name}');",
+      "\t}",
+      "}"
+    ],
+    "description": "Livewire 3 full-page component class"
+  },
+  "lw:property": {
+    "prefix": "lw:property",
+    "body": [
+      "public ${1|string,int,bool,array|} \\$${2:name}${3: = ${4:''}};"
+    ],
+    "description": "Livewire 3 public property"
+  },
+  "lw:property:validated": {
+    "prefix": "lw:property:validated",
+    "body": [
+      "#[Validate('${1|required,nullable|}${2:|string,integer,email,min:3,max:255|}')]",
+      "public ${3|string,int,bool,array|} \\$${4:name}${5: = ${6:''}};"
+    ],
+    "description": "Livewire 3 validated property"
+  },
+  "lw:mount": {
+    "prefix": "lw:mount",
+    "body": [
+      "public function mount(${1:}): void",
+      "{",
+      "\t$0",
+      "}"
+    ],
+    "description": "Livewire 3 mount lifecycle hook"
+  },
+  "lw:action": {
+    "prefix": "lw:action",
+    "body": [
+      "public function ${1:actionName}(${2:}): void",
+      "{",
+      "\t$0",
+      "}"
+    ],
+    "description": "Livewire 3 action method"
+  },
+  "lw:computed": {
+    "prefix": "lw:computed",
+    "body": [
+      "#[Computed]",
+      "public function ${1:name}(): ${2:mixed}",
+      "{",
+      "\treturn $0;",
+      "}"
+    ],
+    "description": "Livewire 3 computed property"
+  },
+  "lw:form": {
+    "prefix": "lw:form",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Livewire\\Forms;",
+      "",
+      "use Livewire\\Attributes\\Validate;",
+      "use Livewire\\Form;",
+      "",
+      "class ${1:Name}Form extends Form",
+      "{",
+      "\t#[Validate('required')]",
+      "\tpublic string \\$${2:field} = '';",
+      "",
+      "\t$0",
+      "}"
+    ],
+    "description": "Livewire 3 form object class"
+  },
+  "lw:dispatch": {
+    "prefix": "lw:dispatch",
+    "body": [
+      "\\$this->dispatch('${1:event-name}'${2:, ${3:param}: \\$${4:value}});"
+    ],
+    "description": "Livewire 3 dispatch event"
+  },
+  "lw:on": {
+    "prefix": "lw:on",
+    "body": [
+      "#[On('${1:event-name}')]",
+      "public function ${2:handleEvent}(${3:}): void",
+      "{",
+      "\t$0",
+      "}"
+    ],
+    "description": "Livewire 3 event listener"
+  },
+  "lw:updated": {
+    "prefix": "lw:updated",
+    "body": [
+      "public function updated${1:PropertyName}(\\$value): void",
+      "{",
+      "\t$0",
+      "}"
+    ],
+    "description": "Livewire 3 updated lifecycle hook"
+  },
+  "lw:updating": {
+    "prefix": "lw:updating",
+    "body": [
+      "public function updating${1:PropertyName}(\\$value): void",
+      "{",
+      "\t$0",
+      "}"
+    ],
+    "description": "Livewire 3 updating lifecycle hook"
+  },
+  "lw:pagination": {
+    "prefix": "lw:pagination",
+    "body": [
+      "use Livewire\\WithPagination;",
+      "",
+      "// Inside class:",
+      "use WithPagination;"
+    ],
+    "description": "Livewire 3 pagination trait"
+  },
+  "lw:fileUpload": {
+    "prefix": "lw:fileUpload",
+    "body": [
+      "use Livewire\\WithFileUploads;",
+      "",
+      "// Inside class:",
+      "use WithFileUploads;",
+      "",
+      "#[Validate('${1|image,file|}|max:${2:1024}')]",
+      "public \\$${3:photo};"
+    ],
+    "description": "Livewire 3 file upload setup"
+  },
+  "lw:lazy": {
+    "prefix": "lw:lazy",
+    "body": [
+      "#[Lazy]"
+    ],
+    "description": "Livewire 3 #[Lazy] attribute"
+  },
+  "lw:title": {
+    "prefix": "lw:title",
+    "body": [
+      "#[Title('${1:Page Title}')]"
+    ],
+    "description": "Livewire 3 #[Title] attribute"
+  },
+  "lw:layout": {
+    "prefix": "lw:layout",
+    "body": [
+      "#[Layout('${1:layouts.app}')]"
+    ],
+    "description": "Livewire 3 #[Layout] attribute"
+  },
+  "lw:locked": {
+    "prefix": "lw:locked",
+    "body": [
+      "#[Locked]",
+      "public ${1|string,int,bool|} \\$${2:id};"
+    ],
+    "description": "Livewire 3 #[Locked] property"
+  },
+  "lw:url": {
+    "prefix": "lw:url",
+    "body": [
+      "#[Url]",
+      "public ${1|string,int,bool|} \\$${2:search} = '${3:}';"
+    ],
+    "description": "Livewire 3 #[Url] property binding"
+  },
+  "lw:wire:click": {
+    "prefix": "lw:wire:click",
+    "body": [
+      "wire:click=\"${1:action}\""
+    ],
+    "description": "Livewire wire:click directive"
+  },
+  "lw:wire:model": {
+    "prefix": "lw:wire:model",
+    "body": [
+      "wire:model${1|,.live,.blur,.live.debounce.250ms|}=\"${2:property}\""
+    ],
+    "description": "Livewire wire:model directive"
+  },
+  "lw:wire:submit": {
+    "prefix": "lw:wire:submit",
+    "body": [
+      "wire:submit${1|,.prevent|}=\"${2:save}\""
+    ],
+    "description": "Livewire wire:submit directive"
+  },
+  "lw:wire:loading": {
+    "prefix": "lw:wire:loading",
+    "body": [
+      "wire:loading${1|,.remove,.class,.attr|}${2:}"
+    ],
+    "description": "Livewire wire:loading directive"
+  },
+  "lw:wire:confirm": {
+    "prefix": "lw:wire:confirm",
+    "body": [
+      "wire:confirm=\"${1:Are you sure?}\""
+    ],
+    "description": "Livewire wire:confirm directive"
+  },
+  "lw:wire:navigate": {
+    "prefix": "lw:wire:navigate",
+    "body": [
+      "wire:navigate"
+    ],
+    "description": "Livewire wire:navigate for SPA-like navigation"
+  },
+  "lw:wire:poll": {
+    "prefix": "lw:wire:poll",
+    "body": [
+      "wire:poll${1:.${2:2}s}${3:=\"${4:method}\"}"
+    ],
+    "description": "Livewire wire:poll directive"
+  },
+  "lw:wire:key": {
+    "prefix": "lw:wire:key",
+    "body": [
+      "wire:key=\"${1:unique-key}\""
+    ],
+    "description": "Livewire wire:key directive"
+  },
+  "lw:wire:transition": {
+    "prefix": "lw:wire:transition",
+    "body": [
+      "wire:transition"
+    ],
+    "description": "Livewire wire:transition directive"
+  },
+  "lw:wire:ignore": {
+    "prefix": "lw:wire:ignore",
+    "body": [
+      "wire:ignore${1:.self}"
+    ],
+    "description": "Livewire wire:ignore directive"
+  },
+  "lw:wire:dirty": {
+    "prefix": "lw:wire:dirty",
+    "body": [
+      "wire:dirty${1|,.class,.remove|}${2:}"
+    ],
+    "description": "Livewire wire:dirty directive"
+  },
+  "lw:wire:offline": {
+    "prefix": "lw:wire:offline",
+    "body": [
+      "wire:offline${1|,.class,.remove|}${2:}"
+    ],
+    "description": "Livewire wire:offline directive"
+  },
+  "lw:tag": {
+    "prefix": "lw:tag",
+    "body": [
+      "<livewire:${1:component-name} ${2:}/>$0"
+    ],
+    "description": "Livewire component tag"
+  },
+  "lw:tag:block": {
+    "prefix": "lw:tag:block",
+    "body": [
+      "<livewire:${1:component-name} ${2:}>",
+      "\t$0",
+      "</livewire:${1:component-name}>"
+    ],
+    "description": "Livewire component block tag"
+  },
+  "lw:directive": {
+    "prefix": "lw:directive",
+    "body": [
+      "@livewire('${1:component-name}'${2:, ['${3:key}' => ${4:\\$value}]})"
+    ],
+    "description": "@livewire() Blade directive"
+  },
+  "lw:persist": {
+    "prefix": "lw:persist",
+    "body": [
+      "@persist('${1:name}')",
+      "\t$0",
+      "@endpersist"
+    ],
+    "description": "Livewire @persist block"
+  },
+  "lw:teleport": {
+    "prefix": "lw:teleport",
+    "body": [
+      "@teleport('${1:body}')",
+      "\t$0",
+      "@endteleport"
+    ],
+    "description": "Livewire @teleport block"
+  },
+  "lw:js": {
+    "prefix": "lw:js",
+    "body": [
+      "\\$this->js('${1:console.log(\"hello\")}')"
+    ],
+    "description": "Livewire 3 execute client-side JS"
+  },
+  "lw:renderless": {
+    "prefix": "lw:renderless",
+    "body": [
+      "#[Renderless]"
+    ],
+    "description": "Livewire 3 #[Renderless] attribute"
+  }
+}

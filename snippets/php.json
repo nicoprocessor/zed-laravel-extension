@@ -1,0 +1,781 @@
+{
+  "l:route:get": {
+    "prefix": "l:route:get",
+    "body": [
+      "Route::get('/${1:uri}', [${2:Controller}::class, '${3:index}'])->name('${4:name}');"
+    ],
+    "description": "Laravel Route::get"
+  },
+  "l:route:post": {
+    "prefix": "l:route:post",
+    "body": [
+      "Route::post('/${1:uri}', [${2:Controller}::class, '${3:store}'])->name('${4:name}');"
+    ],
+    "description": "Laravel Route::post"
+  },
+  "l:route:put": {
+    "prefix": "l:route:put",
+    "body": [
+      "Route::put('/${1:uri}', [${2:Controller}::class, '${3:update}'])->name('${4:name}');"
+    ],
+    "description": "Laravel Route::put"
+  },
+  "l:route:patch": {
+    "prefix": "l:route:patch",
+    "body": [
+      "Route::patch('/${1:uri}', [${2:Controller}::class, '${3:update}'])->name('${4:name}');"
+    ],
+    "description": "Laravel Route::patch"
+  },
+  "l:route:delete": {
+    "prefix": "l:route:delete",
+    "body": [
+      "Route::delete('/${1:uri}', [${2:Controller}::class, '${3:destroy}'])->name('${4:name}');"
+    ],
+    "description": "Laravel Route::delete"
+  },
+  "l:route:resource": {
+    "prefix": "l:route:resource",
+    "body": [
+      "Route::resource('${1:resource}', ${2:Controller}::class);"
+    ],
+    "description": "Laravel Route::resource"
+  },
+  "l:route:apiResource": {
+    "prefix": "l:route:apiResource",
+    "body": [
+      "Route::apiResource('${1:resource}', ${2:Controller}::class);"
+    ],
+    "description": "Laravel Route::apiResource"
+  },
+  "l:route:group": {
+    "prefix": "l:route:group",
+    "body": [
+      "Route::prefix('${1:prefix}')->group(function () {",
+      "\t$0",
+      "});"
+    ],
+    "description": "Laravel route group with prefix"
+  },
+  "l:route:middleware": {
+    "prefix": "l:route:middleware",
+    "body": [
+      "Route::middleware(['${1:auth}'])->group(function () {",
+      "\t$0",
+      "});"
+    ],
+    "description": "Laravel route middleware group"
+  },
+  "l:route:view": {
+    "prefix": "l:route:view",
+    "body": [
+      "Route::view('/${1:uri}', '${2:view}');"
+    ],
+    "description": "Laravel Route::view"
+  },
+  "l:route:redirect": {
+    "prefix": "l:route:redirect",
+    "body": [
+      "Route::redirect('/${1:from}', '/${2:to}', ${3:301});"
+    ],
+    "description": "Laravel Route::redirect"
+  },
+  "l:controller": {
+    "prefix": "l:controller",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Http\\Controllers;",
+      "",
+      "use Illuminate\\Http\\Request;",
+      "",
+      "class ${1:Name}Controller extends Controller",
+      "{",
+      "\tpublic function ${2:index}(${3:Request \\$request})",
+      "\t{",
+      "\t\t$0",
+      "\t}",
+      "}"
+    ],
+    "description": "Laravel controller class"
+  },
+  "l:controller:invokable": {
+    "prefix": "l:controller:invokable",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Http\\Controllers;",
+      "",
+      "use Illuminate\\Http\\Request;",
+      "",
+      "class ${1:Name}Controller extends Controller",
+      "{",
+      "\tpublic function __invoke(Request \\$request)",
+      "\t{",
+      "\t\t$0",
+      "\t}",
+      "}"
+    ],
+    "description": "Laravel invokable controller class"
+  },
+  "l:model": {
+    "prefix": "l:model",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Models;",
+      "",
+      "use Illuminate\\Database\\Eloquent\\Factories\\HasFactory;",
+      "use Illuminate\\Database\\Eloquent\\Model;",
+      "",
+      "class ${1:Name} extends Model",
+      "{",
+      "\tuse HasFactory;",
+      "",
+      "\tprotected \\$fillable = [",
+      "\t\t'${2:field}',",
+      "\t];",
+      "",
+      "\t$0",
+      "}"
+    ],
+    "description": "Laravel Eloquent model class"
+  },
+  "l:migration:create": {
+    "prefix": "l:migration:create",
+    "body": [
+      "<?php",
+      "",
+      "use Illuminate\\Database\\Migrations\\Migration;",
+      "use Illuminate\\Database\\Schema\\Blueprint;",
+      "use Illuminate\\Support\\Facades\\Schema;",
+      "",
+      "return new class extends Migration",
+      "{",
+      "\tpublic function up(): void",
+      "\t{",
+      "\t\tSchema::create('${1:table_name}', function (Blueprint \\$table) {",
+      "\t\t\t\\$table->id();",
+      "\t\t\t$0",
+      "\t\t\t\\$table->timestamps();",
+      "\t\t});",
+      "\t}",
+      "",
+      "\tpublic function down(): void",
+      "\t{",
+      "\t\tSchema::dropIfExists('${1:table_name}');",
+      "\t}",
+      "};"
+    ],
+    "description": "Laravel migration create table"
+  },
+  "l:migration:column": {
+    "prefix": "l:migration:column",
+    "body": [
+      "\\$table->${1|string,integer,bigInteger,text,boolean,date,datetime,timestamp,decimal,float,json,foreignId|}('${2:column_name}')${3:->nullable()};"
+    ],
+    "description": "Laravel migration column definition"
+  },
+  "l:migration:foreign": {
+    "prefix": "l:migration:foreign",
+    "body": [
+      "\\$table->foreignId('${1:model}_id')->constrained()${2:->cascadeOnDelete()};"
+    ],
+    "description": "Laravel migration foreign key"
+  },
+  "l:factory": {
+    "prefix": "l:factory",
+    "body": [
+      "<?php",
+      "",
+      "namespace Database\\Factories;",
+      "",
+      "use Illuminate\\Database\\Eloquent\\Factories\\Factory;",
+      "",
+      "class ${1:Name}Factory extends Factory",
+      "{",
+      "\tpublic function definition(): array",
+      "\t{",
+      "\t\treturn [",
+      "\t\t\t'${2:field}' => fake()->${3:name()},",
+      "\t\t\t$0",
+      "\t\t];",
+      "\t}",
+      "}"
+    ],
+    "description": "Laravel factory definition class"
+  },
+  "l:request": {
+    "prefix": "l:request",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Http\\Requests;",
+      "",
+      "use Illuminate\\Foundation\\Http\\FormRequest;",
+      "",
+      "class ${1:Store}${2:Model}Request extends FormRequest",
+      "{",
+      "\tpublic function authorize(): bool",
+      "\t{",
+      "\t\treturn ${3:true};",
+      "\t}",
+      "",
+      "\tpublic function rules(): array",
+      "\t{",
+      "\t\treturn [",
+      "\t\t\t'${4:field}' => ['${5|required,nullable|}', '${6:string}'],",
+      "\t\t\t$0",
+      "\t\t];",
+      "\t}",
+      "}"
+    ],
+    "description": "Laravel form request class"
+  },
+  "l:middleware": {
+    "prefix": "l:middleware",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Http\\Middleware;",
+      "",
+      "use Closure;",
+      "use Illuminate\\Http\\Request;",
+      "use Symfony\\Component\\HttpFoundation\\Response;",
+      "",
+      "class ${1:Name}Middleware",
+      "{",
+      "\tpublic function handle(Request \\$request, Closure \\$next): Response",
+      "\t{",
+      "\t\t$0",
+      "",
+      "\t\treturn \\$next(\\$request);",
+      "\t}",
+      "}"
+    ],
+    "description": "Laravel middleware class"
+  },
+  "l:job": {
+    "prefix": "l:job",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Jobs;",
+      "",
+      "use Illuminate\\Bus\\Queueable;",
+      "use Illuminate\\Contracts\\Queue\\ShouldQueue;",
+      "use Illuminate\\Foundation\\Bus\\Dispatchable;",
+      "use Illuminate\\Queue\\InteractsWithQueue;",
+      "use Illuminate\\Queue\\SerializesModels;",
+      "",
+      "class ${1:Name}Job implements ShouldQueue",
+      "{",
+      "\tuse Dispatchable, InteractsWithQueue, Queueable, SerializesModels;",
+      "",
+      "\tpublic function __construct(",
+      "\t\t$2",
+      "\t) {}",
+      "",
+      "\tpublic function handle(): void",
+      "\t{",
+      "\t\t$0",
+      "\t}",
+      "}"
+    ],
+    "description": "Laravel job class"
+  },
+  "l:event": {
+    "prefix": "l:event",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Events;",
+      "",
+      "use Illuminate\\Broadcasting\\InteractsWithSockets;",
+      "use Illuminate\\Foundation\\Events\\Dispatchable;",
+      "use Illuminate\\Queue\\SerializesModels;",
+      "",
+      "class ${1:Name}Event",
+      "{",
+      "\tuse Dispatchable, InteractsWithSockets, SerializesModels;",
+      "",
+      "\tpublic function __construct(",
+      "\t\tpublic ${2:Model} \\$${3:model},",
+      "\t) {}",
+      "}"
+    ],
+    "description": "Laravel event class"
+  },
+  "l:listener": {
+    "prefix": "l:listener",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Listeners;",
+      "",
+      "use App\\Events\\${1:EventName};",
+      "",
+      "class ${2:Name}Listener",
+      "{",
+      "\tpublic function handle(${1:EventName} \\$event): void",
+      "\t{",
+      "\t\t$0",
+      "\t}",
+      "}"
+    ],
+    "description": "Laravel listener class"
+  },
+  "l:seeder": {
+    "prefix": "l:seeder",
+    "body": [
+      "<?php",
+      "",
+      "namespace Database\\Seeders;",
+      "",
+      "use App\\Models\\${1:Model};",
+      "use Illuminate\\Database\\Seeder;",
+      "",
+      "class ${1:Model}Seeder extends Seeder",
+      "{",
+      "\tpublic function run(): void",
+      "\t{",
+      "\t\t${1:Model}::factory(${2:10})->create();",
+      "\t\t$0",
+      "\t}",
+      "}"
+    ],
+    "description": "Laravel seeder class"
+  },
+  "l:policy": {
+    "prefix": "l:policy",
+    "body": [
+      "public function ${1|viewAny,view,create,update,delete,restore,forceDelete|}(${2:User} \\$user${3:, ${4:Model} \\$${5:model}}): bool",
+      "{",
+      "\t$0",
+      "}"
+    ],
+    "description": "Laravel policy method"
+  },
+  "l:provider": {
+    "prefix": "l:provider",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Providers;",
+      "",
+      "use Illuminate\\Support\\ServiceProvider;",
+      "",
+      "class ${1:Name}ServiceProvider extends ServiceProvider",
+      "{",
+      "\tpublic function register(): void",
+      "\t{",
+      "\t\t$2",
+      "\t}",
+      "",
+      "\tpublic function boot(): void",
+      "\t{",
+      "\t\t$0",
+      "\t}",
+      "}"
+    ],
+    "description": "Laravel service provider class"
+  },
+  "l:hasOne": {
+    "prefix": "l:hasOne",
+    "body": [
+      "public function ${1:relation}(): HasOne",
+      "{",
+      "\treturn \\$this->hasOne(${2:Model}::class);",
+      "}"
+    ],
+    "description": "Laravel hasOne relationship"
+  },
+  "l:hasMany": {
+    "prefix": "l:hasMany",
+    "body": [
+      "public function ${1:relations}(): HasMany",
+      "{",
+      "\treturn \\$this->hasMany(${2:Model}::class);",
+      "}"
+    ],
+    "description": "Laravel hasMany relationship"
+  },
+  "l:belongsTo": {
+    "prefix": "l:belongsTo",
+    "body": [
+      "public function ${1:relation}(): BelongsTo",
+      "{",
+      "\treturn \\$this->belongsTo(${2:Model}::class);",
+      "}"
+    ],
+    "description": "Laravel belongsTo relationship"
+  },
+  "l:belongsToMany": {
+    "prefix": "l:belongsToMany",
+    "body": [
+      "public function ${1:relations}(): BelongsToMany",
+      "{",
+      "\treturn \\$this->belongsToMany(${2:Model}::class)${3:->withTimestamps()};",
+      "}"
+    ],
+    "description": "Laravel belongsToMany relationship"
+  },
+  "l:hasManyThrough": {
+    "prefix": "l:hasManyThrough",
+    "body": [
+      "public function ${1:relations}(): HasManyThrough",
+      "{",
+      "\treturn \\$this->hasManyThrough(${2:FinalModel}::class, ${3:IntermediateModel}::class);",
+      "}"
+    ],
+    "description": "Laravel hasManyThrough relationship"
+  },
+  "l:morphTo": {
+    "prefix": "l:morphTo",
+    "body": [
+      "public function ${1:commentable}(): MorphTo",
+      "{",
+      "\treturn \\$this->morphTo();",
+      "}"
+    ],
+    "description": "Laravel morphTo relationship"
+  },
+  "l:morphMany": {
+    "prefix": "l:morphMany",
+    "body": [
+      "public function ${1:comments}(): MorphMany",
+      "{",
+      "\treturn \\$this->morphMany(${2:Model}::class, '${3:commentable}');",
+      "}"
+    ],
+    "description": "Laravel morphMany relationship"
+  },
+  "l:morphOne": {
+    "prefix": "l:morphOne",
+    "body": [
+      "public function ${1:image}(): MorphOne",
+      "{",
+      "\treturn \\$this->morphOne(${2:Model}::class, '${3:imageable}');",
+      "}"
+    ],
+    "description": "Laravel morphOne relationship"
+  },
+  "l:scope": {
+    "prefix": "l:scope",
+    "body": [
+      "public function scope${1:Name}(Builder \\$query${2:, ${3:string} \\$${4:param}}): void",
+      "{",
+      "\t\\$query->${5:where}($0);",
+      "}"
+    ],
+    "description": "Laravel Eloquent scope method"
+  },
+  "l:validate": {
+    "prefix": "l:validate",
+    "body": [
+      "\\$validated = \\$request->validate([",
+      "\t'${1:field}' => ['${2|required,nullable|}', '${3:string}'],",
+      "\t$0",
+      "]);"
+    ],
+    "description": "Laravel request validation"
+  },
+  "l:dd": {
+    "prefix": "l:dd",
+    "body": [
+      "dd(${1:\\$variable});"
+    ],
+    "description": "Laravel dd() helper"
+  },
+  "l:dump": {
+    "prefix": "l:dump",
+    "body": [
+      "dump(${1:\\$variable});"
+    ],
+    "description": "Laravel dump() helper"
+  },
+  "l:collect": {
+    "prefix": "l:collect",
+    "body": [
+      "collect(${1:\\$items})->${2:map}(function (${3:\\$item}) {",
+      "\t$0",
+      "});"
+    ],
+    "description": "Laravel collect() helper"
+  },
+  "l:dispatch": {
+    "prefix": "l:dispatch",
+    "body": [
+      "${1:JobClass}::dispatch(${2:});"
+    ],
+    "description": "Laravel job dispatch"
+  },
+  "l:cache:remember": {
+    "prefix": "l:cache:remember",
+    "body": [
+      "Cache::remember('${1:key}', ${2:now()->addMinutes(60)}, function () {",
+      "\t$0",
+      "});"
+    ],
+    "description": "Laravel Cache::remember"
+  },
+  "l:log": {
+    "prefix": "l:log",
+    "body": [
+      "Log::${1|info,debug,warning,error,critical|}('${2:message}'${3:, [${4:}]});"
+    ],
+    "description": "Laravel Log facade"
+  },
+  "l:response:json": {
+    "prefix": "l:response:json",
+    "body": [
+      "return response()->json([",
+      "\t'${1:key}' => ${2:\\$value},",
+      "], ${3:200});"
+    ],
+    "description": "Laravel JSON response"
+  },
+  "l:abort_if": {
+    "prefix": "l:abort_if",
+    "body": [
+      "abort_if(${1:condition}, ${2:403}${3:, '${4:Unauthorized}'});"
+    ],
+    "description": "Laravel abort_if helper"
+  },
+  "l:abort_unless": {
+    "prefix": "l:abort_unless",
+    "body": [
+      "abort_unless(${1:condition}, ${2:403}${3:, '${4:Unauthorized}'});"
+    ],
+    "description": "Laravel abort_unless helper"
+  },
+  "l:test:phpunit": {
+    "prefix": "l:test:phpunit",
+    "body": [
+      "public function test_${1:it_does_something}(): void",
+      "{",
+      "\t$0",
+      "}"
+    ],
+    "description": "PHPUnit test method"
+  },
+  "l:test:pest:it": {
+    "prefix": "l:test:pest:it",
+    "body": [
+      "it('${1:does something}', function () {",
+      "\t$0",
+      "});"
+    ],
+    "description": "Pest it() test"
+  },
+  "l:test:pest:test": {
+    "prefix": "l:test:pest:test",
+    "body": [
+      "test('${1:description}', function () {",
+      "\t$0",
+      "});"
+    ],
+    "description": "Pest test() test"
+  },
+  "l:enum": {
+    "prefix": "l:enum",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Enums;",
+      "",
+      "enum ${1:Name}: ${2|string,int|}",
+      "{",
+      "\tcase ${3:Value} = '${4:value}';",
+      "\t$0",
+      "}"
+    ],
+    "description": "Laravel PHP enum"
+  },
+  "l:action": {
+    "prefix": "l:action",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Actions;",
+      "",
+      "class ${1:Name}Action",
+      "{",
+      "\tpublic function execute(${2:}): ${3:void}",
+      "\t{",
+      "\t\t$0",
+      "\t}",
+      "}"
+    ],
+    "description": "Laravel action class"
+  },
+  "l:dto": {
+    "prefix": "l:dto",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\DataTransferObjects;",
+      "",
+      "readonly class ${1:Name}Data",
+      "{",
+      "\tpublic function __construct(",
+      "\t\tpublic ${2:string} \\$${3:field},",
+      "\t\t$0",
+      "\t) {}",
+      "}"
+    ],
+    "description": "Laravel DTO (Data Transfer Object) class"
+  },
+  "l:mail": {
+    "prefix": "l:mail",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Mail;",
+      "",
+      "use Illuminate\\Bus\\Queueable;",
+      "use Illuminate\\Mail\\Mailable;",
+      "use Illuminate\\Mail\\Mailables\\Content;",
+      "use Illuminate\\Mail\\Mailables\\Envelope;",
+      "use Illuminate\\Queue\\SerializesModels;",
+      "",
+      "class ${1:Name}Mail extends Mailable",
+      "{",
+      "\tuse Queueable, SerializesModels;",
+      "",
+      "\tpublic function __construct(",
+      "\t\t$2",
+      "\t) {}",
+      "",
+      "\tpublic function envelope(): Envelope",
+      "\t{",
+      "\t\treturn new Envelope(",
+      "\t\t\tsubject: '${3:Subject}',",
+      "\t\t);",
+      "\t}",
+      "",
+      "\tpublic function content(): Content",
+      "\t{",
+      "\t\treturn new Content(",
+      "\t\t\tmarkdown: '${4:mail.template}',",
+      "\t\t);",
+      "\t}",
+      "}"
+    ],
+    "description": "Laravel Mailable class"
+  },
+  "l:notification": {
+    "prefix": "l:notification",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Notifications;",
+      "",
+      "use Illuminate\\Bus\\Queueable;",
+      "use Illuminate\\Contracts\\Queue\\ShouldQueue;",
+      "use Illuminate\\Notifications\\Messages\\MailMessage;",
+      "use Illuminate\\Notifications\\Notification;",
+      "",
+      "class ${1:Name}Notification extends Notification implements ShouldQueue",
+      "{",
+      "\tuse Queueable;",
+      "",
+      "\tpublic function __construct(",
+      "\t\t$2",
+      "\t) {}",
+      "",
+      "\tpublic function via(object \\$notifiable): array",
+      "\t{",
+      "\t\treturn ['${3|mail,database,broadcast|}'];",
+      "\t}",
+      "",
+      "\tpublic function toMail(object \\$notifiable): MailMessage",
+      "\t{",
+      "\t\treturn (new MailMessage)",
+      "\t\t\t->line('${4:Introduction}')$0;",
+      "\t}",
+      "}"
+    ],
+    "description": "Laravel notification class"
+  },
+  "l:cast": {
+    "prefix": "l:cast",
+    "body": [
+      "protected function casts(): array",
+      "{",
+      "\treturn [",
+      "\t\t'${1:field}' => '${2|string,integer,boolean,array,datetime,collection,encrypted|}',",
+      "\t\t$0",
+      "\t];",
+      "}"
+    ],
+    "description": "Laravel Eloquent casts method"
+  },
+  "l:accessor": {
+    "prefix": "l:accessor",
+    "body": [
+      "protected function ${1:attributeName}(): Attribute",
+      "{",
+      "\treturn Attribute::make(",
+      "\t\tget: fn (${2:string} \\$value) => ${3:strtolower(\\$value)},",
+      "\t);",
+      "}"
+    ],
+    "description": "Laravel Eloquent accessor"
+  },
+  "l:mutator": {
+    "prefix": "l:mutator",
+    "body": [
+      "protected function ${1:attributeName}(): Attribute",
+      "{",
+      "\treturn Attribute::make(",
+      "\t\tset: fn (${2:string} \\$value) => ${3:strtolower(\\$value)},",
+      "\t);",
+      "}"
+    ],
+    "description": "Laravel Eloquent mutator"
+  },
+  "l:resource": {
+    "prefix": "l:resource",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Http\\Resources;",
+      "",
+      "use Illuminate\\Http\\Request;",
+      "use Illuminate\\Http\\Resources\\Json\\JsonResource;",
+      "",
+      "class ${1:Name}Resource extends JsonResource",
+      "{",
+      "\tpublic function toArray(Request \\$request): array",
+      "\t{",
+      "\t\treturn [",
+      "\t\t\t'id' => \\$this->id,",
+      "\t\t\t'${2:field}' => \\$this->${2:field},",
+      "\t\t\t$0",
+      "\t\t];",
+      "\t}",
+      "}"
+    ],
+    "description": "Laravel API resource class"
+  },
+  "l:observer": {
+    "prefix": "l:observer",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Observers;",
+      "",
+      "use App\\Models\\${1:Model};",
+      "",
+      "class ${1:Model}Observer",
+      "{",
+      "\tpublic function ${2|created,updated,deleted,restored,forceDeleted|}(${1:Model} \\$${3:model}): void",
+      "\t{",
+      "\t\t$0",
+      "\t}",
+      "}"
+    ],
+    "description": "Laravel observer class"
+  }
+}
