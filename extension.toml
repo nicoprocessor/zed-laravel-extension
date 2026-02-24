@@ -18,3 +18,7 @@ path = "php_only"
 [language_servers.laravel-lsp]
 name = "Laravel LSP"
 languages = ["Blade", "PHP"]
+
+[[capabilities]]
+kind = "npm:install"
+package = "laravel-lsp-server"

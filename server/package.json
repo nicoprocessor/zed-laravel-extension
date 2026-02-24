@@ -3,10 +3,20 @@
   "version": "0.0.1",
   "description": "Laravel Language Server for Zed editor",
   "main": "dist/server.js",
+  "author": "Harris Raftopoulos",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/harrisrafto/zed-laravel-extension.git",
+    "directory": "server"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "node esbuild.config.js",
     "watch": "node esbuild.config.js --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "vscode-languageserver": "^9.0.1",
