@@ -6,7 +6,7 @@
   "author": "Harris Raftopoulos",
   "repository": {
     "type": "git",
-    "url": "https://github.com/harrisrafto/zed-laravel-extension.git",
+    "url": "https://github.com/harris21/zed-laravel-extension.git",
     "directory": "server"
   },
   "files": [

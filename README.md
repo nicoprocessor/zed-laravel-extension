@@ -49,7 +49,7 @@ To limit diagnostics to warnings and errors (hiding hints/info):
 ## Development
 
 ```bash
-git clone https://github.com/harrisrafto/zed-laravel-extension.git
+git clone https://github.com/harris21/zed-laravel-extension.git
 cd zed-laravel-extension/server
 npm install
 npm run build
