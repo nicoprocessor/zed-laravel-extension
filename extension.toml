@@ -1,5 +1,5 @@
-id = "laravel"
-name = "Laravel"
+id = "toolbox-laravel"
+name = "Toolbox for Laravel"
 version = "0.0.1"
 schema_version = 1
 authors = ["Harris Raftopoulos"]
