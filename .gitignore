@@ -1,4 +1,5 @@
 # Rust
+target/
 extension/target/
 
 # Node.js
