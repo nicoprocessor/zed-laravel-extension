@@ -3,10 +3,10 @@
   "version": "0.0.1",
   "description": "Laravel Language Server for Zed editor",
   "main": "dist/server.js",
-  "author": "Harris Raftopoulos",
+  "author": "Nicola Onofri",
   "repository": {
     "type": "git",
-    "url": "https://github.com/harris21/zed-laravel-extension.git",
+    "url": "https://github.com/nicoprocessor/zed-laravel-extension.git",
     "directory": "server"
   },
   "files": [
