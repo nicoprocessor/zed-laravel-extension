@@ -340,14 +340,23 @@ function routesForControllerMethod(
 
 function formatRouteSummary(route: RouteItem): string {
   const name = route.name ? ` (${route.name})` : "";
-  return `${route.method} /${route.uri}${name}`;
+  return `${route.method} ${formatRouteUri(route.uri)}${name}`;
+}
+
+function normalizeRouteUri(uri: string): string {
+  return uri.replace(/^\/+|\/+$/g, "");
+}
+
+function formatRouteUri(uri: string): string {
+  const normalized = normalizeRouteUri(uri);
+  return normalized ? `/${normalized}` : "/";
 }
 
 function routeHover(route: RouteItem, range: Range): Hover {
   const parts = [
     route.name ? `**Route:** \`${route.name}\`` : "**Route**",
     `**Method:** \`${route.method}\``,
-    `**URI:** \`/${route.uri}\``,
+    `**URI:** \`${formatRouteUri(route.uri)}\``,
     `**Action:** \`${route.action}\``,
   ];
 
@@ -429,11 +438,11 @@ function routeForDefinitionContext(
   }
 
   const relative = getDocumentRelativePath(document);
-  const normalizedUri = context.value.replace(/^\/+/, "");
+  const normalizedUri = normalizeRouteUri(context.value);
 
   return (
     routes.find((route) => {
-      if (route.uri !== normalizedUri) return false;
+      if (normalizeRouteUri(route.uri) !== normalizedUri) return false;
       if (relative && route.filename && route.filename !== relative) return false;
       if (!route.line) return true;
 
@@ -459,7 +468,7 @@ export function provideRouteCompletion(
     documentation: {
       kind: "markdown" as const,
       value: [
-        `**URI:** \`/${route.uri}\``,
+        `**URI:** \`${formatRouteUri(route.uri)}\``,
         `**Action:** \`${route.action}\``,
         route.filename ? `**File:** \`${route.filename}\`` : "",
       ]
