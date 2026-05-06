@@ -343,6 +343,105 @@ function formatRouteSummary(route: RouteItem): string {
   return `${route.method} /${route.uri}${name}`;
 }
 
+function routeHover(route: RouteItem, range: Range): Hover {
+  const parts = [
+    route.name ? `**Route:** \`${route.name}\`` : "**Route**",
+    `**Method:** \`${route.method}\``,
+    `**URI:** \`/${route.uri}\``,
+    `**Action:** \`${route.action}\``,
+  ];
+
+  if (route.filename) {
+    parts.push(`**Defined in:** \`${route.filename}:${route.line ?? ""}\``);
+  }
+
+  if (route.actionFilename && route.actionFilename !== route.filename) {
+    parts.push(
+      `**Controller:** \`${route.actionFilename}:${route.actionLine ?? ""}\``
+    );
+  }
+
+  return {
+    contents: {
+      kind: "markdown",
+      value: parts.join("\n\n"),
+    },
+    range,
+  };
+}
+
+function getRouteDefinitionContext(
+  document: TextDocument,
+  position: Position
+): { range: Range; kind: "name" | "uri"; value: string } | null {
+  const line = document.getText(
+    Range.create(position.line, 0, position.line + 1, 0)
+  );
+
+  for (const quote of ["'", '"']) {
+    let searchStart = 0;
+    while (searchStart < line.length) {
+      const openIdx = line.indexOf(quote, searchStart);
+      if (openIdx === -1) break;
+
+      const closeIdx = line.indexOf(quote, openIdx + 1);
+      if (closeIdx === -1) break;
+
+      if (position.character > openIdx && position.character <= closeIdx) {
+        const beforeString = line.substring(0, openIdx);
+        const value = line.substring(openIdx + 1, closeIdx);
+        const range = Range.create(
+          position.line,
+          openIdx + 1,
+          position.line,
+          closeIdx
+        );
+
+        if (/->name\s*\(\s*$/.test(beforeString)) {
+          return { range, kind: "name", value };
+        }
+
+        if (
+          /Route::(?:get|post|put|patch|delete|options|any|match|view|redirect|permanentRedirect)\s*\(\s*$/.test(
+            beforeString
+          )
+        ) {
+          return { range, kind: "uri", value };
+        }
+      }
+
+      searchStart = closeIdx + 1;
+    }
+  }
+
+  return null;
+}
+
+function routeForDefinitionContext(
+  document: TextDocument,
+  context: { kind: "name" | "uri"; value: string },
+  line: number
+): RouteItem | null {
+  const routes = getRoutes();
+
+  if (context.kind === "name") {
+    return routes.find((route) => route.name === context.value) ?? null;
+  }
+
+  const relative = getDocumentRelativePath(document);
+  const normalizedUri = context.value.replace(/^\/+/, "");
+
+  return (
+    routes.find((route) => {
+      if (route.uri !== normalizedUri) return false;
+      if (relative && route.filename && route.filename !== relative) return false;
+      if (!route.line) return true;
+
+      return Math.abs(route.line - (line + 1)) <= 3;
+    }) ?? null
+  );
+}
+
 export function provideRouteCompletion(
   document: TextDocument,
   position: Position
@@ -392,6 +491,19 @@ export function provideRouteHover(
     };
   }
 
+  const definitionContext = getRouteDefinitionContext(document, position);
+  if (definitionContext) {
+    const route = routeForDefinitionContext(
+      document,
+      definitionContext,
+      position.line
+    );
+
+    if (route) {
+      return routeHover(route, definitionContext.range);
+    }
+  }
+
   const context = getRouteContext(document, position);
   if (!context) return null;
 
@@ -399,30 +511,7 @@ export function provideRouteHover(
   const route = routes.find((r) => r.name === context.value);
   if (!route) return null;
 
-  const parts = [
-    `**Route:** \`${route.name}\``,
-    `**Method:** \`${route.method}\``,
-    `**URI:** \`/${route.uri}\``,
-    `**Action:** \`${route.action}\``,
-  ];
-
-  if (route.filename) {
-    parts.push(`**Defined in:** \`${route.filename}:${route.line ?? ""}\``);
-  }
-
-  if (route.actionFilename && route.actionFilename !== route.filename) {
-    parts.push(
-      `**Controller:** \`${route.actionFilename}:${route.actionLine ?? ""}\``
-    );
-  }
-
-  return {
-    contents: {
-      kind: "markdown",
-      value: parts.join("\n\n"),
-    },
-    range: context.range,
-  };
+  return routeHover(route, context.range);
 }
 
 export function provideRouteDefinition(
