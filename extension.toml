@@ -2,9 +2,9 @@ id = "toolbox-laravel"
 name = "Toolbox for Laravel"
 version = "0.0.1"
 schema_version = 1
-authors = ["Harris Raftopoulos"]
+authors = ["Nicola Onofri", "Harris Raftopoulos"]
 description = "Full Laravel support for Zed: Blade templates, route/view/config intelligence, Pint formatting, snippets, and more."
-repository = "https://github.com/harris21/zed-laravel-extension"
+repository = "https://github.com/nicoprocessor/zed-laravel-extension"
 
 [grammars.blade]
 repository = "https://github.com/EmranMR/tree-sitter-blade"
