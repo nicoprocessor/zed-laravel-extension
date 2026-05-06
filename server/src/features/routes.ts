@@ -3,6 +3,7 @@ import {
   CompletionItemKind,
   Hover,
   Location,
+  CodeLens,
   Diagnostic,
   DiagnosticSeverity,
   Range,
@@ -10,7 +11,7 @@ import {
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { getRoutes, RouteItem } from "../repositories/routes";
-import { projectPath } from "../support/project";
+import { projectPath, relativePath } from "../support/project";
 import { URI } from "vscode-uri";
 
 const ROUTE_FUNCTION_PATTERNS = [
@@ -120,6 +121,228 @@ function findAllRouteReferences(
   return results;
 }
 
+function getDocumentRelativePath(document: TextDocument): string | null {
+  try {
+    return relativePath(URI.parse(document.uri).fsPath);
+  } catch {
+    return null;
+  }
+}
+
+function getWordRangeAtPosition(
+  document: TextDocument,
+  position: Position
+): { range: Range; value: string } | null {
+  const line = document.getText(
+    Range.create(position.line, 0, position.line + 1, 0)
+  );
+
+  const wordPattern = /[A-Za-z_][A-Za-z0-9_]*/g;
+  let match: RegExpExecArray | null;
+
+  while ((match = wordPattern.exec(line)) !== null) {
+    const start = match.index;
+    const end = start + match[0].length;
+
+    if (position.character >= start && position.character <= end) {
+      return {
+        range: Range.create(position.line, start, position.line, end),
+        value: match[0],
+      };
+    }
+  }
+
+  return null;
+}
+
+function parsePhpImports(document: TextDocument): Map<string, string> {
+  const imports = new Map<string, string>();
+  const text = document.getText();
+  const usePattern = /^\s*use\s+([^;]+);/gm;
+  let match: RegExpExecArray | null;
+
+  while ((match = usePattern.exec(text)) !== null) {
+    const importValue = match[1].trim();
+    if (importValue.includes("{")) continue;
+
+    const aliasMatch = importValue.match(/\s+as\s+([A-Za-z_][A-Za-z0-9_]*)$/i);
+    const fqcn = aliasMatch
+      ? importValue.replace(/\s+as\s+[A-Za-z_][A-Za-z0-9_]*$/i, "").trim()
+      : importValue;
+    const shortName = aliasMatch
+      ? aliasMatch[1]
+      : fqcn.split("\\").filter(Boolean).at(-1);
+
+    if (shortName) {
+      imports.set(shortName, fqcn.replace(/^\\/, ""));
+    }
+  }
+
+  return imports;
+}
+
+function parsePhpNamespace(document: TextDocument): string | null {
+  const match = document
+    .getText()
+    .match(/^\s*namespace\s+([^;]+);/m);
+
+  return match ? match[1].trim().replace(/^\\/, "") : null;
+}
+
+function resolvePhpClassName(
+  className: string,
+  document: TextDocument
+): string {
+  const normalized = className.trim().replace(/^\\/, "");
+  if (normalized.includes("\\")) return normalized;
+
+  const imports = parsePhpImports(document);
+  const imported = imports.get(normalized);
+  if (imported) return imported;
+
+  const namespace = parsePhpNamespace(document);
+  return namespace ? `${namespace}\\${normalized}` : normalized;
+}
+
+function findControllerGroupClass(
+  document: TextDocument,
+  fromLine: number
+): string | null {
+  for (let lineNum = fromLine; lineNum >= 0; lineNum--) {
+    const line = document.getText(Range.create(lineNum, 0, lineNum + 1, 0));
+    const match = line.match(
+      /Route::controller\s*\(\s*([A-Za-z_\\][A-Za-z0-9_\\]*)::class\s*\)\s*->\s*group\s*\(/
+    );
+
+    if (match) {
+      return resolvePhpClassName(match[1], document);
+    }
+  }
+
+  return null;
+}
+
+function getRouteActionContext(
+  document: TextDocument,
+  position: Position
+): { range: Range; controller: string | null; method: string } | null {
+  const line = document.getText(
+    Range.create(position.line, 0, position.line + 1, 0)
+  );
+  const quoteChars = ["'", '"'];
+
+  for (const quote of quoteChars) {
+    let searchStart = 0;
+    while (searchStart < line.length) {
+      const openIdx = line.indexOf(quote, searchStart);
+      if (openIdx === -1) break;
+
+      const closeIdx = line.indexOf(quote, openIdx + 1);
+      if (closeIdx === -1) break;
+
+      if (position.character > openIdx && position.character <= closeIdx) {
+        const value = line.substring(openIdx + 1, closeIdx);
+        const valueOffset = openIdx + 1;
+        const atIdx = value.lastIndexOf("@");
+
+        if (atIdx !== -1 && position.character > valueOffset + atIdx) {
+          const controller = value.substring(0, atIdx);
+          const method = value.substring(atIdx + 1);
+
+          return {
+            range: Range.create(
+              position.line,
+              valueOffset + atIdx + 1,
+              position.line,
+              valueOffset + value.length
+            ),
+            controller: resolvePhpClassName(controller, document),
+            method,
+          };
+        }
+
+        const beforeString = line.substring(0, openIdx);
+        const arrayActionMatch = beforeString.match(
+          /([A-Za-z_\\][A-Za-z0-9_\\]*)::class\s*,\s*$/
+        );
+        const controller = arrayActionMatch
+          ? resolvePhpClassName(arrayActionMatch[1], document)
+          : /Route::[A-Za-z_][A-Za-z0-9_]*\s*\(.*,\s*$/.test(beforeString)
+            ? findControllerGroupClass(document, position.line)
+            : null;
+
+        if (controller) {
+          return {
+            range: Range.create(
+              position.line,
+              valueOffset,
+              position.line,
+              valueOffset + value.length
+            ),
+            controller,
+            method: value,
+          };
+        }
+      }
+
+      searchStart = closeIdx + 1;
+    }
+  }
+
+  return null;
+}
+
+function routeMatchesControllerMethod(
+  route: RouteItem,
+  controller: string | null,
+  method: string
+): boolean {
+  const [routeController, routeMethod] = route.action.split("@");
+  if (routeMethod !== method) return false;
+  if (!controller) return true;
+
+  return (
+    routeController === controller ||
+    routeController.endsWith(`\\${controller.split("\\").at(-1)}`)
+  );
+}
+
+function routesForControllerMethod(
+  document: TextDocument,
+  position: Position
+): { range: Range; method: string; routes: RouteItem[] } | null {
+  const word = getWordRangeAtPosition(document, position);
+  if (!word) return null;
+
+  const line = document.getText(
+    Range.create(position.line, 0, position.line + 1, 0)
+  );
+  const functionMatch = line.match(
+    /\bfunction\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/
+  );
+
+  if (!functionMatch || functionMatch[1] !== word.value) return null;
+
+  const relative = getDocumentRelativePath(document);
+  if (!relative) return null;
+
+  const routes = getRoutes().filter((route) => {
+    if (route.actionFilename !== relative) return false;
+    if (!route.actionLine) return false;
+
+    return route.actionLine - 1 === position.line;
+  });
+
+  return routes.length > 0
+    ? { range: word.range, method: word.value, routes }
+    : null;
+}
+
+function formatRouteSummary(route: RouteItem): string {
+  const name = route.name ? ` (${route.name})` : "";
+  return `${route.method} /${route.uri}${name}`;
+}
+
 export function provideRouteCompletion(
   document: TextDocument,
   position: Position
@@ -153,6 +376,22 @@ export function provideRouteHover(
   document: TextDocument,
   position: Position
 ): Hover | null {
+  const controllerMethod = routesForControllerMethod(document, position);
+  if (controllerMethod) {
+    return {
+      contents: {
+        kind: "markdown",
+        value: [
+          `**Laravel routes for:** \`${controllerMethod.method}\``,
+          ...controllerMethod.routes.map(
+            (route) => `- \`${formatRouteSummary(route)}\``
+          ),
+        ].join("\n"),
+      },
+      range: controllerMethod.range,
+    };
+  }
+
   const context = getRouteContext(document, position);
   if (!context) return null;
 
@@ -190,6 +429,27 @@ export function provideRouteDefinition(
   document: TextDocument,
   position: Position
 ): Location | null {
+  const actionContext = getRouteActionContext(document, position);
+  if (actionContext) {
+    const route = getRoutes().find((candidate) =>
+      routeMatchesControllerMethod(
+        candidate,
+        actionContext.controller,
+        actionContext.method
+      )
+    );
+
+    if (route?.actionFilename) {
+      const filePath = projectPath(route.actionFilename);
+      const line = route.actionLine ? route.actionLine - 1 : 0;
+
+      return Location.create(
+        URI.file(filePath).toString(),
+        Range.create(line, 0, line, 0)
+      );
+    }
+  }
+
   const context = getRouteContext(document, position);
   if (!context) return null;
 
@@ -204,6 +464,45 @@ export function provideRouteDefinition(
     URI.file(filePath).toString(),
     Range.create(line, 0, line, 0)
   );
+}
+
+export function provideRouteCodeLens(document: TextDocument): CodeLens[] {
+  const lines = document.getText().split("\n");
+  const relative = getDocumentRelativePath(document);
+  if (!relative) return [];
+
+  const lenses: CodeLens[] = [];
+
+  for (let lineNum = 0; lineNum < lines.length; lineNum++) {
+    const match = lines[lineNum].match(
+      /\bfunction\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/
+    );
+    if (!match) continue;
+
+    const routes = getRoutes().filter(
+      (route) =>
+        route.actionFilename === relative && route.actionLine === lineNum + 1
+    );
+    if (routes.length === 0) continue;
+
+    const title =
+      routes.length === 1
+        ? `Laravel route: ${formatRouteSummary(routes[0])}`
+        : `Laravel routes: ${routes.length}`;
+    const start = lines[lineNum].indexOf(match[1]);
+    const end = start + match[1].length;
+
+    lenses.push({
+      range: Range.create(lineNum, start, lineNum, end),
+      command: {
+        title,
+        command: "",
+      },
+      data: routes,
+    });
+  }
+
+  return lenses;
 }
 
 export function provideRouteDiagnostics(

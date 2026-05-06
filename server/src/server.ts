@@ -8,6 +8,7 @@ import {
   CompletionItem,
   Hover,
   Definition,
+  CodeLens,
   CodeAction,
   TextEdit,
   Diagnostic,
@@ -27,6 +28,7 @@ import {
   provideRouteCompletion,
   provideRouteHover,
   provideRouteDefinition,
+  provideRouteCodeLens,
   provideRouteDiagnostics,
 } from "./features/routes";
 
@@ -62,6 +64,9 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
       },
       hoverProvider: true,
       definitionProvider: true,
+      codeLensProvider: {
+        resolveProvider: false,
+      },
       codeActionProvider: true,
       documentFormattingProvider: true,
     },
@@ -122,6 +127,13 @@ connection.onDefinition((params): Definition | null => {
 
 connection.onCodeAction((): CodeAction[] => {
   return [];
+});
+
+connection.onCodeLens((params): CodeLens[] => {
+  const document = documents.get(params.textDocument.uri);
+  if (!document) return [];
+
+  return provideRouteCodeLens(document);
 });
 
 connection.onDocumentFormatting((): TextEdit[] => {
