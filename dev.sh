@@ -2,7 +2,8 @@
 # Dev script: rebuild the LSP server and copy to Zed's extension work directory
 set -e
 
-WORK_DIR="$HOME/Library/Application Support/Zed/extensions/work/laravel/node_modules/laravel-lsp-server"
+EXTENSION_ID="toolbox-laravel"
+WORK_DIR="$HOME/Library/Application Support/Zed/extensions/work/$EXTENSION_ID/node_modules/laravel-lsp-server"
 
 echo "Building LSP server..."
 cd "$(dirname "$0")/server"
