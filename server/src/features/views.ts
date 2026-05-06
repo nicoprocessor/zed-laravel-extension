@@ -14,17 +14,46 @@ import { projectPath } from "../support/project";
 import { URI } from "vscode-uri";
 
 const VIEW_FUNCTION_PATTERNS = [
-  /view\s*\(\s*['"]/,
-  /View::make\s*\(\s*['"]/,
-  /@extends\s*\(\s*['"]/,
-  /@include\s*\(\s*['"]/,
-  /@includeIf\s*\(\s*['"]/,
-  /@includeWhen\s*\([^,]*,\s*['"]/,
-  /@includeUnless\s*\([^,]*,\s*['"]/,
-  /@includeFirst\s*\(\s*\[\s*['"]/,
-  /@each\s*\(\s*['"]/,
-  /Route::view\s*\([^,]*,\s*['"]/,
+  /(?:^|[^\w:>])view\s*\(\s*$/,
+  /View::make\s*\(\s*$/,
+  /@extends\s*\(\s*$/,
+  /@include\s*\(\s*$/,
+  /@includeIf\s*\(\s*$/,
+  /@includeWhen\s*\([^,]*,\s*$/,
+  /@includeUnless\s*\([^,]*,\s*$/,
+  /@includeFirst\s*\(\s*\[\s*$/,
+  /@each\s*\(\s*$/,
 ];
+
+function isViewReference(textBefore: string): boolean {
+  if (/Route::view\s*\([^)]*,\s*$/.test(textBefore)) {
+    return true;
+  }
+
+  if (/Route::view\s*\([^)]*\bview\s*:\s*$/.test(textBefore)) {
+    return true;
+  }
+
+  return VIEW_FUNCTION_PATTERNS.some((p) => p.test(textBefore));
+}
+
+function viewContextFromString(
+  line: string,
+  lineNum: number,
+  openIdx: number,
+  closeIdx: number
+): { range: Range; value: string } | null {
+  const textBefore = line.substring(0, openIdx);
+
+  if (!isViewReference(textBefore)) {
+    return null;
+  }
+
+  return {
+    range: Range.create(lineNum, openIdx + 1, lineNum, closeIdx),
+    value: line.substring(openIdx + 1, closeIdx),
+  };
+}
 
 /**
  * Checks if the cursor is inside a view reference and returns
@@ -52,23 +81,7 @@ function getViewContext(
 
       // Check if cursor is within this quoted string
       if (position.character > openIdx && position.character <= closeIdx) {
-        const value = line.substring(openIdx + 1, closeIdx);
-
-        // Check if the text before this quote matches a view pattern
-        const textBefore = line.substring(0, openIdx + 1);
-        const isViewRef = VIEW_FUNCTION_PATTERNS.some((p) => p.test(textBefore));
-
-        if (isViewRef) {
-          return {
-            range: Range.create(
-              position.line,
-              openIdx + 1,
-              position.line,
-              closeIdx
-            ),
-            value,
-          };
-        }
+        return viewContextFromString(line, position.line, openIdx, closeIdx);
       }
 
       searchStart = closeIdx + 1;
@@ -88,53 +101,40 @@ function findAllViewReferences(
   const text = document.getText();
   const lines = text.split("\n");
 
-  // Combined pattern for all view references
-  const viewPatterns = [
-    /view\s*\(\s*(['"])(.*?)\1/g,
-    /View::make\s*\(\s*(['"])(.*?)\1/g,
-    /@extends\s*\(\s*(['"])(.*?)\1/g,
-    /@include\s*\(\s*(['"])(.*?)\1/g,
-    /@includeIf\s*\(\s*(['"])(.*?)\1/g,
-    /@includeWhen\s*\([^,]*,\s*(['"])(.*?)\1/g,
-    /@includeUnless\s*\([^,]*,\s*(['"])(.*?)\1/g,
-    /@includeFirst\s*\(\s*\[\s*(['"])(.*?)\1/g,
-    /@each\s*\(\s*(['"])(.*?)\1/g,
-    /Route::view\s*\([^,]*,\s*(['"])(.*?)\1/g,
-  ];
-
   // Skip patterns -- these are not view references
   const skipPatterns = [/@section\s*\(/, /@push\s*\(/, /@stack\s*\(/];
 
   for (let lineNum = 0; lineNum < lines.length; lineNum++) {
     const line = lines[lineNum];
 
-    for (const pattern of viewPatterns) {
-      pattern.lastIndex = 0;
-      let match: RegExpExecArray | null;
+    let searchStart = 0;
+    while (searchStart < line.length) {
+      const singleQuoteIdx = line.indexOf("'", searchStart);
+      const doubleQuoteIdx = line.indexOf('"', searchStart);
+      const openIdx =
+        singleQuoteIdx === -1
+          ? doubleQuoteIdx
+          : doubleQuoteIdx === -1
+            ? singleQuoteIdx
+            : Math.min(singleQuoteIdx, doubleQuoteIdx);
 
-      while ((match = pattern.exec(line)) !== null) {
-        const fullMatch = match[0];
-        const matchStart = match.index;
+      if (openIdx === -1) break;
 
-        // Check if this matches a skip pattern
-        const textFromMatch = line.substring(matchStart);
-        const shouldSkip = skipPatterns.some((sp) => sp.test(textFromMatch));
-        if (shouldSkip) continue;
+      const quote = line[openIdx];
+      const closeIdx = line.indexOf(quote, openIdx + 1);
+      if (closeIdx === -1) break;
 
-        const viewName = match[2];
-        if (!viewName) continue;
+      const context = viewContextFromString(line, lineNum, openIdx, closeIdx);
+      if (context) {
+        const textFromView = line.substring(context.range.start.character);
+        const shouldSkip = skipPatterns.some((sp) => sp.test(textFromView));
 
-        // Find the position of the view name within the match
-        const quote = match[1];
-        const nameStart =
-          matchStart + fullMatch.indexOf(quote + viewName) + 1;
-        const nameEnd = nameStart + viewName.length;
-
-        results.push({
-          range: Range.create(lineNum, nameStart, lineNum, nameEnd),
-          value: viewName,
-        });
+        if (!shouldSkip && context.value) {
+          results.push(context);
+        }
       }
+
+      searchStart = closeIdx + 1;
     }
   }
 
