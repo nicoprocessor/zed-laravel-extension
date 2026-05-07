@@ -189,6 +189,17 @@ function parsePhpNamespace(document: TextDocument): string | null {
   return match ? match[1].trim().replace(/^\\/, "") : null;
 }
 
+function parsePhpClassName(document: TextDocument): string | null {
+  const text = document.getText();
+  const classMatch = text.match(
+    /\b(?:abstract\s+|final\s+)?class\s+([A-Za-z_][A-Za-z0-9_]*)\b/
+  );
+  if (!classMatch) return null;
+
+  const namespace = parsePhpNamespace(document);
+  return namespace ? `${namespace}\\${classMatch[1]}` : classMatch[1];
+}
+
 function resolvePhpClassName(
   className: string,
   document: TextDocument
@@ -307,34 +318,65 @@ function routeMatchesControllerMethod(
   );
 }
 
-function routesForControllerMethod(
+function getPhpMethodDeclarationContext(
   document: TextDocument,
   position: Position
-): { range: Range; method: string; routes: RouteItem[] } | null {
-  const word = getWordRangeAtPosition(document, position);
-  if (!word) return null;
-
+): { range: Range; method: string } | null {
   const line = document.getText(
     Range.create(position.line, 0, position.line + 1, 0)
   );
   const functionMatch = line.match(
     /\bfunction\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/
   );
+  if (!functionMatch) return null;
 
-  if (!functionMatch || functionMatch[1] !== word.value) return null;
+  const methodStart = line.indexOf(functionMatch[1]);
+  const methodEnd = methodStart + functionMatch[1].length;
 
+  if (position.character < methodStart || position.character > methodEnd) {
+    return null;
+  }
+
+  return {
+    range: Range.create(position.line, methodStart, position.line, methodEnd),
+    method: functionMatch[1],
+  };
+}
+
+function routesForPhpMethod(
+  document: TextDocument,
+  method: string,
+  line: number
+): RouteItem[] {
   const relative = getDocumentRelativePath(document);
-  if (!relative) return null;
+  if (!relative) return [];
 
-  const routes = getRoutes().filter((route) => {
+  const controller = parsePhpClassName(document);
+
+  return getRoutes().filter((route) => {
     if (route.actionFilename !== relative) return false;
-    if (!route.actionLine) return false;
+    if (!routeMatchesControllerMethod(route, controller, method)) return false;
 
-    return route.actionLine - 1 === position.line;
+    if (!route.actionLine) return true;
+    return route.actionLine - 1 === line;
   });
+}
+
+function routesForControllerMethod(
+  document: TextDocument,
+  position: Position
+): { range: Range; method: string; routes: RouteItem[] } | null {
+  const methodContext = getPhpMethodDeclarationContext(document, position);
+  if (!methodContext) return null;
+
+  const routes = routesForPhpMethod(
+    document,
+    methodContext.method,
+    position.line
+  );
 
   return routes.length > 0
-    ? { range: word.range, method: word.value, routes }
+    ? { range: methodContext.range, method: methodContext.method, routes }
     : null;
 }
 
@@ -526,7 +568,24 @@ export function provideRouteHover(
 export function provideRouteDefinition(
   document: TextDocument,
   position: Position
-): Location | null {
+): Location | Location[] | null {
+  const controllerMethod = routesForControllerMethod(document, position);
+  if (controllerMethod) {
+    const locations = controllerMethod.routes
+      .filter((route) => route.filename)
+      .map((route) => {
+        const filePath = projectPath(route.filename!);
+        const line = route.line ? route.line - 1 : 0;
+        return Location.create(
+          URI.file(filePath).toString(),
+          Range.create(line, 0, line, 0)
+        );
+      });
+
+    if (locations.length === 1) return locations[0];
+    if (locations.length > 1) return locations;
+  }
+
   const actionContext = getRouteActionContext(document, position);
   if (actionContext) {
     const route = getRoutes().find((candidate) =>
@@ -566,9 +625,6 @@ export function provideRouteDefinition(
 
 export function provideRouteCodeLens(document: TextDocument): CodeLens[] {
   const lines = document.getText().split("\n");
-  const relative = getDocumentRelativePath(document);
-  if (!relative) return [];
-
   const lenses: CodeLens[] = [];
 
   for (let lineNum = 0; lineNum < lines.length; lineNum++) {
@@ -577,16 +633,13 @@ export function provideRouteCodeLens(document: TextDocument): CodeLens[] {
     );
     if (!match) continue;
 
-    const routes = getRoutes().filter(
-      (route) =>
-        route.actionFilename === relative && route.actionLine === lineNum + 1
-    );
+    const routes = routesForPhpMethod(document, match[1], lineNum);
     if (routes.length === 0) continue;
 
     const title =
       routes.length === 1
-        ? `Laravel route: ${formatRouteSummary(routes[0])}`
-        : `Laravel routes: ${routes.length}`;
+        ? formatRouteSummary(routes[0])
+        : `${routes.length} Laravel routes`;
     const start = lines[lineNum].indexOf(match[1]);
     const end = start + match[1].length;
 
@@ -594,7 +647,7 @@ export function provideRouteCodeLens(document: TextDocument): CodeLens[] {
       range: Range.create(lineNum, start, lineNum, end),
       command: {
         title,
-        command: "",
+        command: "laravel-lsp.route",
       },
       data: routes,
     });
